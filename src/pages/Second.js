@@ -8,11 +8,13 @@ import {
   Dimensions,
   FlatList,
   ActivityIndicator,
+  Button,
 } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 import { openDatabase } from 'react-native-sqlite-storage';
 import InfoCard from '../components/InfoCard.js/InfoCard';
 import RandevularCard from '../components/Randevular/Randevular';
+import {SiteContext, useContext} from '../context/SiteContext';
 const ppImage = 'https://pic.onlinewebfonts.com/svg/img_568656.png';
 const mailImage =
   'https://www.freepnglogos.com/uploads/email-png/company-email-svg-png-icon-download-18.png';
@@ -31,20 +33,12 @@ const userId = 1;
   // setUserData(results.rows.item(0)); or alert
  
 
-const db = SQLite.openDatabase(
-  {
-    location: 'default',
-    name: 'SqliteDb',
-  },
-  () => {
-  },
-  err => {
-    console.log('hata');
-  },
-);
+
 const Second = ({ navigation }) => {
+  const {allBarbers, setAllBarbers, db, myAppo, setMyAppo} =
+    useContext(SiteContext);
   let [userData, setUserData] = useState({});
-  let [myAppointments, setMyAppointments] = useState({});
+  
     const renderRandevularCard = ({item}) => {
       return (
         <RandevularCard
@@ -54,7 +48,6 @@ const Second = ({ navigation }) => {
       );
     };
    function getUserData() {
-     console.log('getBarbers');
      db.transaction(tx => {
        tx.executeSql(
          'SELECT * FROM users where id = ?',
@@ -71,7 +64,6 @@ const Second = ({ navigation }) => {
      });
   }
   const getMyAppointments = () => {
-    console.log('getMyAppointments');
     db.transaction(tx => {
       tx.executeSql(
         'SELECT * FROM appointments where userId = ?',
@@ -81,12 +73,11 @@ const Second = ({ navigation }) => {
           if (len > 0) {
             var temp = [];
             for (let index = 0; index < len; index++) {
-              //console.log(result.rows.item(index));
               temp.push(results.rows.item(index));
             }
-            setMyAppointments(temp);
+            setMyAppo(temp);
           } else {
-            //alert('No user found');
+             setMyAppo(temp);
           }
         },
       );
@@ -96,7 +87,7 @@ const Second = ({ navigation }) => {
     getUserData();
     getMyAppointments();
   }, []);
-  console.log(myAppointments);
+  console.log(myAppo);
  
   return (
     <SafeAreaView style={styles.container}>
@@ -122,12 +113,18 @@ const Second = ({ navigation }) => {
       <View style={styles.seperator} />
       <View style={{marginTop: 15}}>
         <Text style={styles.header_text}>{appointments}</Text>
+        <Button
+          title="ilk veri getir"
+          onPress={() => {
+            getMyAppointments();
+            console.log(myAppo);
+          }}></Button>
       </View>
       {false ? (
         <ActivityIndicator size="large" />
       ) : (
         <FlatList
-          data={myAppointments}
+          data={myAppo}
           renderItem={renderRandevularCard}
           keyExtractor={item => item.id}
         />

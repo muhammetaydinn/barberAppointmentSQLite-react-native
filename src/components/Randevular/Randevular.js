@@ -11,26 +11,17 @@ import {
 } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 import {openDatabase} from 'react-native-sqlite-storage';
-const db = SQLite.openDatabase(
-  {
-    location: 'default',
-    name: 'SqliteDb',
-  },
-  () => {
-    console.log('başarılı');
-  },
-  err => {
-    console.log('hata');
-  },
-);
+import {SiteContext, useContext} from '../../context/SiteContext';
 //TODO: NAME BOOLUPDATEFALSE
 const RandevularCard = ({ item, navigation }) => {
+  
+  const {allBarbers, setAllBarbers, db, myAppo, setMyAppo} =
+    useContext(SiteContext);
 
   const [barberName, setBarberName] = useState("");
   const [barberPhone, setBarberPhone] = useState('');
 
   const getBarberName =() =>{
-    console.log('getBarberName');
     db.transaction(tx => {
       tx.executeSql(
         'SELECT * FROM barbers where id = ?',
@@ -47,11 +38,43 @@ const RandevularCard = ({ item, navigation }) => {
       );
     });
   }
+  const getMyAppointments = () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT * FROM appointments where userId = ?',
+        [1],
+        (tx, results) => {
+          var len = results.rows.length;
+          if (len > 0) {
+            var temp = [];
+            for (let index = 0; index < len; index++) {
+              temp.push(results.rows.item(index));
+            }
+            setMyAppo(temp);
+          } else {
+            setMyAppo(temp);
+          }
+        },
+      );
+    });
+  };
  
   useEffect(() => {
     getBarberName();
-  },[])
- 
+    getMyAppointments();
+  }, [])
+  
+ const readRecord = () => {
+   db.transaction(tx => {
+     tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
+       var temp = [];
+       for (let index = 0; index < result.rows.length; index++) {
+         temp.push(result.rows.item(index));
+       }
+       setAllBarbers(temp);
+     });
+   });
+ };
   function randevuIptalBool(date, barberId) {
      const checkToday = diffInToday(date);
    var value =
@@ -60,10 +83,8 @@ const RandevularCard = ({ item, navigation }) => {
        : checkToday == 1
        ? 'UPDATE barbers set tomorrow=? where id=?'
           : checkToday == 2 ? 'UPDATE barbers set nextDay=? where id=?' : "";
-     console.log(value);
      db.transaction(tx => {
        tx.executeSql(value, [0, barberId], (tx, results) => {
-         console.log('Results', results.rowsAffected);
          if (results.rowsAffected > 0) {
            Alert.alert(
              'Success',
@@ -92,7 +113,6 @@ const RandevularCard = ({ item, navigation }) => {
           query,
           [id],
           function (tx, res) {
-            console.log('removeId: ' + res.insertId);
             console.log('rowsAffected: ' + res.rowsAffected);
           },
           function (tx, error) {
@@ -118,7 +138,6 @@ const RandevularCard = ({ item, navigation }) => {
   {
   }
   const createTwoButtonAlert = (id, barberId, date) => {
-    console.log('>>>>> date ' + date);
 
     Alert.alert(
       'Emin misiniz?',
@@ -135,6 +154,8 @@ const RandevularCard = ({ item, navigation }) => {
             //TODO:
             randevuIptalBool(date,barberId);
             deleteFromAppointments(id);
+            readRecord();
+            getMyAppointments();
           
 
           },
@@ -142,10 +163,7 @@ const RandevularCard = ({ item, navigation }) => {
       ],
     );
   };
-   function goBack() {
-     navigation.goBack();
-   }
-
+  
  
     
 
@@ -168,10 +186,10 @@ const RandevularCard = ({ item, navigation }) => {
               <TouchableOpacity
                 onPress={() => {
                   console.log(
-                    '>>>>> alınan randevunun berber idsi:' + item.kuaforid,
+                    '>>>>>berber idsi:' + item.barberId,
                   ); // alınan randevunun berber idsi
                   console.log(
-                    '>>>>> musterinin aldıgı randevu idsi: ' + item._id,
+                    '>>>>> randevu idsi: ' + item.id,
                   ); //musterinin aldıgı randevu idssi
                   createTwoButtonAlert(item.id, item.barberId, item.date);
                 }}>

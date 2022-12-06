@@ -15,6 +15,7 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import InfoCard from '../components/InfoCard.js/InfoCard';
 import SQLite from 'react-native-sqlite-storage';
+import {SiteContext, useContext} from '../context/SiteContext';
 const w = Dimensions.get('window').width;
 const h = Dimensions.get('window').height;
 const manBarberImage ='https://t4.ftcdn.net/jpg/03/15/14/91/240_F_315149199_Dxpjpgtl2nZ6aw7Q8dPfn8O2mrK4zFy2.jpg';
@@ -37,24 +38,14 @@ nextDayy.setDate(nextDayy.getDate() + 2);
 const today1 = todayy.toISOString().split('T')[0];
 const tomorrow1 = tomorroww.toISOString().split('T')[0];
 const nextDay1 = nextDayy.toISOString().split('T')[0];
-const db = SQLite.openDatabase(
-  {
-    location: 'default',
-    name: 'SqliteDb',
-  },
-  () => {
-  },
-  err => {
-    console.log('hata');
-  },
-);
+
 //Useefffect kullan
-export default function Third({route, navigation}) {
+export default function Third({ route, navigation }) {
+  const {allBarbers, setAllBarbers, db} = useContext(SiteContext);
   let [userData, setUserData] = useState({});
   const _id = route.params.id;
   // setUserData(results.rows.item(0)); or alert
   function getBarbers() {
-    console.log('getBarbers');
     db.transaction(tx => {
       tx.executeSql(
         'SELECT * FROM barbers where id = ?',
@@ -70,9 +61,19 @@ export default function Third({route, navigation}) {
       );
     });
   }
+  const readRecord = () => {
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
+        var temp = [];
+        for (let index = 0; index < result.rows.length; index++) {
+          temp.push(result.rows.item(index));
+        }
+        setAllBarbers(temp);
+      });
+    });
+  };
 
   function createAppointmentsTable() {
-    console.log('createAppointmentsTable');
     db.transaction(tx => {
       tx.executeSql(
         'CREATE TABLE IF NOT EXISTS appointments (id INTEGER PRIMARY KEY AUTOINCREMENT , barberId INTEGER , userId INTEGER ,  address TEXT , date TEXT)',
@@ -125,7 +126,6 @@ export default function Third({route, navigation}) {
         : type == '1'
         ? "UPDATE barbers set tomorrow=? where id=?"
           : "UPDATE barbers set nextDay=? where id=?";
-    console.log(value);
     db.transaction(tx => {
       tx.executeSql(value, [1, _id], (tx, results) => {
         console.log('Results', results.rowsAffected);
@@ -145,36 +145,7 @@ export default function Third({route, navigation}) {
       });
     });
   };
-function updateBarberAvailable(type) {
-  var value =
-    type == '0'
-      ? 'UPDATE barbers set today=?, where id=?'
-      : type == '1'
-      ? 'UPDATE barbers set tomorrow=?, where id=?'
-      : 'UPDATE barbers set nextDay=?, where id=?';
-  console.log(value);
-  db.transaction(tx => {
-    console.log("----------------------")
-    tx.executeSql(value, [1, _id], (tx, results) => {
-      console.log('++++++++++++++++++++');
-      console.log('Results', results.rowsAffected);
-      if (results.rowsAffected > 0) {
-         console.log('/////////////////////////');
-        Alert.alert(
-          'Success',
-          'User updated successfully',
-          [
-            {
-              text: 'Ok',
-              onPress: () => {},
-            },
-          ],
-          {cancelable: false},
-        );
-      } else alert('Updation Failed');
-    });
-  });
-  }
+
   function addAppointments(address, date) {
     db.transaction(tx => {
       try {
@@ -196,6 +167,7 @@ function updateBarberAvailable(type) {
     updateUser(type);
     addAppointments(address, date);
     getBarbers();
+    readRecord();
   };
   //createTwoButtonAlert(day, type)}>
   function myAppointments(day, isAvailable, type) {

@@ -3,19 +3,10 @@ import { StyleSheet, Text, View, FlatList, Button } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 import {openDatabase} from 'react-native-sqlite-storage';
 import BarberCard from '../components/BarberCard/BarberCard';
-const db = SQLite.openDatabase(
-  {
-    location: 'default',
-    name: 'SqliteDb',
-  },
-  () => {
-  },
-  err => {
-    console.log('hata');
-  },
-);
+import { SiteContext,useContext } from '../context/SiteContext';
+
 const First = ({ navigation }) => {
-  const [data, setData] = useState([]);
+  const { allBarbers, setAllBarbers , db} = useContext(SiteContext);
   const handleBarberSelect = id => {
     navigation.navigate('Third', { id });
   };
@@ -33,7 +24,6 @@ const First = ({ navigation }) => {
     });
   }
   function createTimeTable() {
-    console.log('createUsersTable');
     db.transaction(tx => {
       tx.executeSql(
         'CREATE TABLE IF NOT EXISTS dateTime (id INTEGER PRIMARY KEY AUTOINCREMENT , date TEXT)',
@@ -55,7 +45,6 @@ const First = ({ navigation }) => {
         item={item}
         onSelect={() => {
           handleBarberSelect(item.id);
-          console.log("idFirst "+item.id);
         }}
       />
     );
@@ -64,15 +53,12 @@ const First = ({ navigation }) => {
   const readRecord = () => {
      db.transaction(tx => {
        tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
-         //console.log('result', result);
-         //console.log('length' + result.rows.length);
          var temp = [];
          for (let index = 0; index < result.rows.length; index++) {
-           //console.log(result.rows.item(index));
            temp.push(result.rows.item(index));
          }
-         setData(temp);
-         console.log('data lengthFirst' + data.length);
+         setAllBarbers(temp);
+         console.log('setAllBarbers lengthFirst' + allBarbers.length);
        });
      });
    };
@@ -97,7 +83,7 @@ const First = ({ navigation }) => {
       <Button title="getBarbers" onPress={readRecord}></Button>
 
       <FlatList
-        data={data}
+        data={allBarbers}
         renderItem={renderBarberCard}
         //refreshing={false}
         //onRefresh={getBarbers}

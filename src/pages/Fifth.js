@@ -11,26 +11,17 @@ import {
   Switch,Alert, ScrollView
 } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
+import {SiteContext, useContext} from '../context/SiteContext';
 const w = Dimensions.get('window').width;
 const h = Dimensions.get('window').height;
  
 
- const db = SQLite.openDatabase(
-   {
-     location: 'default',
-     name: 'SqliteDb',
-   },
-   () => {
-   },
-   err => {
-     console.log('hata');
-   },
- );
 
 
 //"SELECT name FROM sqlite_master WHERE type='table' AND name='barbers'",
 const Fifth = () => {
   const [cliked, setClicked] = useState(false);
+  const { allBarbers, setAllBarbers, db } = useContext(SiteContext);
    const addUser = () => {
      db.transaction(tx => {
        try {
@@ -70,7 +61,6 @@ const Fifth = () => {
           [],
           (tx, result) => {
             console.log('tx', tx);
-            console.log('A');
             console.log('result', result);
           },
         );
@@ -139,6 +129,7 @@ const Fifth = () => {
                 phone,
             );
             addBarber();
+            readRecord();
           },
         },
       ]);
@@ -146,18 +137,14 @@ const Fifth = () => {
     //with error handling
     const addBarber = (
     ) => {
-      console.log('K');
       db.transaction(tx => {
-        console.log('L');
         try
         {
           tx.executeSql(
             'INSERT INTO barbers (email , name , address  , phone ,today , tomorrow, nextDay ,gender ) VALUES(?,?,?,?,?,?,?,?)',
             [mail, name, address, phone, today, tomorrow,nextDay, isEnabled],
             (tx, result) => {
-              console.log('Ş');
               console.log('tx', tx);
-              console.log('İ');
               console.log('result', result.rowsAffected);
             },
           );
@@ -170,18 +157,14 @@ const Fifth = () => {
     };
     //ID
     const readRecord = () => {
-        console.log('readRecord');
-        db.transaction(tx => {
-            tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
-                console.log('result', result);
-                console.log("length" + result.rows.length);
-                var temp = [];
-                for (let index = 0; index < result.rows.length; index++) {
-                    console.log("gender "+result.rows.item(index).gender);
-                    temp.push(result.rows.item(index));
-             
-            }
-             console.log(temp);
+      db.transaction(tx => {
+        tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
+          var temp = [];
+          for (let index = 0; index < result.rows.length; index++) {
+            temp.push(result.rows.item(index));
+          }
+          setAllBarbers(temp);
+          console.log('setAllBarbers lengthFirst' + allBarbers.length);
         });
       });
     };
@@ -286,7 +269,10 @@ const Fifth = () => {
               Kuaför Silme Paneli
             </Text>
             {Kutu(deletingId, setDeletingId, 'Sileceğiniz kuafor idsi', 2)}
-            <Button title="Sil" onPress={deleteRecord} />
+            <Button title="Sil" onPress={() => {
+              deleteRecord();
+              readRecord();
+            }} />
             <Text
               style={{
                 marginTop: 20,
@@ -301,6 +287,7 @@ const Fifth = () => {
               onPress={() => {
                 addUser();
                 setClicked(true);
+                
               }}
               disabled={cliked}></Button>
 

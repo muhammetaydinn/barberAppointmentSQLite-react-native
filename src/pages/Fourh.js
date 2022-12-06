@@ -18,7 +18,8 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import InfoCard from '../components/InfoCard.js/InfoCard';
 import SQLite from 'react-native-sqlite-storage';
-import {openDatabase} from 'react-native-sqlite-storage';
+import { openDatabase } from 'react-native-sqlite-storage';
+import {SiteContext, useContext} from '../context/SiteContext';
 const w = Dimensions.get('window').width;
 const h = Dimensions.get('window').height;
 const genderImage1 =
@@ -42,19 +43,10 @@ const cancelText = 'İptal Et';
 
 
 
-const db = SQLite.openDatabase(
-  {
-    location: 'default',
-    name: 'SqliteDb',
-  },
-  () => {
-  },
-  err => {
-    console.log('hata');
-  },
-);
 
 export default function Fourth({ navigation }) {
+   const {allBarbers, setAllBarbers, db, myAppo, setMyAppo} =
+     useContext(SiteContext);
   var todayy = new Date();
 var tomorroww = new Date(todayy);
 var nextDayy = new Date(todayy);
@@ -75,7 +67,6 @@ const nextDay = nextDayy.toISOString().split('T')[0];
   const [filteredData, setFilteredData] = useState({});
 
   const getBarberData = () => {
-      console.log('getBarberData');
       db.transaction(tx => {
         tx.executeSql(
           'SELECT * FROM barbers where id = ?',
@@ -92,7 +83,6 @@ const nextDay = nextDayy.toISOString().split('T')[0];
       });
   }
 const getBarberAppointments = () => {
-  console.log('getBarberAppointments');
   db.transaction(tx => {
     tx.executeSql(
       'SELECT * FROM appointments where barberId = ?',
@@ -102,11 +92,9 @@ const getBarberAppointments = () => {
         if (len > 0) {
           var temp = [];
           for (let index = 0; index < len; index++) {
-            //console.log(result.rows.item(index));
             temp.push(results.rows.item(index));
           }
           setBarberAppointments(temp);
-          console.log("temp",temp)
         } else {
           //alert('No user found');
         }
@@ -114,33 +102,29 @@ const getBarberAppointments = () => {
     );
   });
 };
-
+const readRecord = () => {
+  db.transaction(tx => {
+    tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
+      var temp = [];
+      for (let index = 0; index < result.rows.length; index++) {
+        temp.push(result.rows.item(index));
+      }
+      setAllBarbers(temp);
+    });
+  });
+};
   
   function deleteFromAppointments(id) {
-    //Id ile silersin
-    //delete From APPOİNTMENTS
-    db.transaction(
-      function (tx) {
-        var query = 'DELETE FROM appointments WHERE id = ?';
-        tx.executeSql(
-          query,
-          [id],
-          function (tx, res) {
-            console.log('removeId: ' + res.insertId);
-            console.log('rowsAffected: ' + res.rowsAffected);
-          },
-          function (tx, error) {
-            console.log('DELETE error: ' + error.message);
-          },
-        );
-      },
-      function (error) {
-        console.log('transaction error: ' + error.message);
-      },
-      function () {
-        console.log('transaction ok');
-      },
-    );
+     db.transaction(tx => {
+       tx.executeSql(
+         'DELETE FROM appointments where id = ? ',
+         [id],
+         (tx, result) => {
+           console.log(`tx`, tx);
+           console.log(`result`, result);
+         },
+       );
+     });
   }
   
 
@@ -155,10 +139,8 @@ const getBarberAppointments = () => {
         : checkToday == 2
         ? 'UPDATE barbers set nextDay=? where id=?'
         : '';
-    console.log(value);
     db.transaction(tx => {
       tx.executeSql(value, [0, barberId], (tx, results) => {
-        console.log('Results', results.rowsAffected);
         if (results.rowsAffected > 0) {
           Alert.alert(
             'Success',
@@ -191,7 +173,7 @@ const getBarberAppointments = () => {
   }
   //TODO:
 
-  const createTwoButtonAlert = (date, filtered) => {
+  const createTwoButtonAlert = (date, a) => {
     Alert.alert(
       'Emin misiniz?',
       'Seçili Randevuyu iptal etmek istediğinize emin misiniz?',
@@ -204,11 +186,18 @@ const getBarberAppointments = () => {
         {
           text: 'Evet',
           onPress: () => {
-            if (filtered.length > 0) {
-              deleteFromAppointments(filtered[0].id);
-              barberBoolCancel(date, filtered[0].barberId);
+            if (a[0].id >0) {
+              console.log('id:', a[0].id + 'barberId: ', a[0].barberId);
+              deleteFromAppointments(a[0].id);
+              barberBoolCancel(date, a[0].barberId);
               getBarberAppointments();
               getBarberData();
+              readRecord();
+              console.log("-----------------");
+              
+
+            } else {
+              console.log('+++++++GIREMEDI+++++++++++');
             }
           },
         },
@@ -232,13 +221,27 @@ const getBarberAppointments = () => {
             <TouchableOpacity
               style={styles.cancel_button}
               onPress={() => {
-                const fd = barberAppointments.filter(
-                  item =>
-                    item.date === gunString 
-                );
-                setFilteredData(fd);
-                console.log(fd[0]);
-                createTwoButtonAlert(gunString, fd);
+                console.log("barberAppointments",barberAppointments)
+                var a = barberAppointments
+                  .filter(item => item.date == gunString)
+                  .map(({id, date, barberId, userId}) => ({
+                    id,
+                    date,
+                    barberId,
+                    userId,
+                  }));
+                if (a.length > 0) {
+                  console.log('a[0].id', a[0].id);
+                  console.log('a[0].date', a[0].date);
+                  console.log('a[0].barberId', a[0].barberId);
+                  console.log('a[0].userId', a[0].userId);
+                  setFilteredData(a);
+                  createTwoButtonAlert(gunString, a);
+                } else {
+                  console.log(barberAppointments)
+                  alert("Verı gözükmyüor ya da tarih sorunu TEKRAR DENE")
+                }
+                
               }}>
               <Text style={styles.text5}>{cancelText}</Text>
             </TouchableOpacity>
@@ -300,9 +303,6 @@ const getBarberAppointments = () => {
     </SafeAreaView>
   );
 }
-/*
-<Text>{data[0].date}</Text>
-*/
 const styles = StyleSheet.create({
   container: {},
   images_bg: {
