@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -13,8 +13,8 @@ import SQLite from 'react-native-sqlite-storage';
 import {openDatabase} from 'react-native-sqlite-storage';
 import {SiteContext, useContext} from '../../context/SiteContext';
 //TODO: NAME BOOLUPDATEFALSE
-const RandevularCard = ({ item, navigation }) => {
-  
+const BarberRandevularCard = ({item, navigation}) => {
+  console.log('BarberRandevular ITEM: ', item);
   const {
     allBarbers,
     setAllBarbers,
@@ -25,62 +25,25 @@ const RandevularCard = ({ item, navigation }) => {
     setBarberAppo,
   } = useContext(SiteContext);
 
-  const [barberName, setBarberName] = useState("");
-  const [barberPhone, setBarberPhone] = useState('');
+  const [userName, setUserName] = useState('');
+  const [userPhone, setUserPhone] = useState('');
 
-  const getBarberName =() =>{
+  const getUserName = () => {
     db.transaction(tx => {
       tx.executeSql(
-        'SELECT * FROM barbers where id = ?',
-        [item.barberId],
+        'SELECT * FROM users where id = ?',
+        [item.userId],
         (tx, results) => {
           var len = results.rows.length;
           if (len > 0) {
-            setBarberName(results.rows.item(0).name);
-            setBarberPhone(results.rows.item(0).phone)
+            setUserName(results.rows.item(0).name);
+            setUserPhone(results.rows.item(0).phone);
           } else {
-            alert("randevunuz bulunmamaktadır");
+            alert('randevunuz bulunmamaktadır');
           }
         },
       );
     });
-  }
-  const getMyAppointments = () => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'SELECT * FROM appointments where userId = ?',
-        [1],
-        (tx, results) => {
-          var len = results.rows.length;
-          if (len > 0) {
-            var temp = [];
-            for (let index = 0; index < len; index++) {
-              temp.push(results.rows.item(index));
-            }
-            setMyAppo(temp);
-          } else {
-            setMyAppo(temp);
-          }
-        },
-      );
-    });
-  };
- 
-  useEffect(() => {
-    getBarberName();
-    getMyAppointments();
-  }, [])
-  
- const readRecord = () => {
-   db.transaction(tx => {
-     tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
-       var temp = [];
-       for (let index = 0; index < result.rows.length; index++) {
-         temp.push(result.rows.item(index));
-       }
-       setAllBarbers(temp);
-     });
-   });
   };
   const getBarberAppointments = () => {
     db.transaction(tx => {
@@ -102,70 +65,105 @@ const RandevularCard = ({ item, navigation }) => {
       );
     });
   };
-  function randevuIptalBool(date, barberId) {
-     const checkToday = diffInToday(date);
-   var value =
-     checkToday == 0
-       ? 'UPDATE barbers set today=? where id=?'
-       : checkToday == 1
-       ? 'UPDATE barbers set tomorrow=? where id=?'
-          : checkToday == 2 ? 'UPDATE barbers set nextDay=? where id=?' : "";
-     db.transaction(tx => {
-       tx.executeSql(value, [0, barberId], (tx, results) => {
-         if (results.rowsAffected > 0) {
-           Alert.alert(
-             'Success',
-             'User updated successfully',
-             [
-               {
-                 text: 'Ok',
-                 onPress: () => {},
-               },
-             ],
-             {cancelable: false},
-           );
-         } else alert('Updation Failed');
-       });
-     });
-   
 
+  useEffect(() => {
+    getUserName();
+    getBarberAppointments();
+  }, []);
+
+  const readRecord = () => {
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
+        var temp = [];
+        for (let index = 0; index < result.rows.length; index++) {
+          temp.push(result.rows.item(index));
+        }
+        setAllBarbers(temp);
+      });
+    });
+  };
+  const getMyAppointments = () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT * FROM appointments where userId = ?',
+        [1],
+        (tx, results) => {
+          var len = results.rows.length;
+          if (len > 0) {
+            var temp = [];
+            for (let index = 0; index < len; index++) {
+              temp.push(results.rows.item(index));
+            }
+            setMyAppo(temp);
+          } else {
+            setMyAppo(temp);
+          }
+        },
+      );
+    });
+  };
+  function randevuIptalBool(date, barberId) {
+    const checkToday = diffInToday(date);
+    var value =
+      checkToday == 0
+        ? 'UPDATE barbers set today=? where id=?'
+        : checkToday == 1
+        ? 'UPDATE barbers set tomorrow=? where id=?'
+        : checkToday == 2
+        ? 'UPDATE barbers set nextDay=? where id=?'
+        : '';
+    console.log('checkToday:[' + checkToday + ']');
+    db.transaction(tx => {
+      tx.executeSql(value, [0, 1], (tx, results) => {
+        if (results.rowsAffected > 0) {
+          Alert.alert(
+            'Success',
+            'User updated successfully',
+            [
+              {
+                text: 'Ok',
+                onPress: () => {},
+              },
+            ],
+            {cancelable: false},
+          );
+        } else alert('Updation Failed');
+      });
+    });
   }
   function deleteFromAppointments(id) {
     //Id ile silersin
     //delete From APPOİNTMENTS
-    db.transaction(
-      function (tx) {
-        var query = 'DELETE FROM appointments WHERE id = ?';
-        tx.executeSql(
-          query,
-          [id],
-          function (tx, res) {
-            console.log('rowsAffected: ' + res.rowsAffected);
-          },
-          function (tx, error) {
-            console.log('DELETE error: ' + error.message);
-          },
-        );
-      },
-    );
+    db.transaction(function (tx) {
+      var query = 'DELETE FROM appointments WHERE id = ?';
+      tx.executeSql(
+        query,
+        [id],
+        function (tx, res) {
+          console.log('rowsAffected: ' + res.rowsAffected);
+        },
+        function (tx, error) {
+          console.log('DELETE error: ' + error.message);
+        },
+      );
+    });
   }
 
   //TODO: moment library dif
-   function diffInToday(date1) {
-     var todayy = new Date();
-     const today = todayy.toISOString().split('T')[0];
-     const date2 = new Date(today); //bugünün normal formatı
-     const date3 = new Date(date1); //date1 in normal formatı
-     const Difference_In_Time = date2.getTime() - date3.getTime();
-     const Difference_In_Days = Math.abs(
-       Difference_In_Time / (1000 * 3600 * 24),
-     );
-      return parseInt(Difference_In_Days, 10);
-   }
+  function diffInToday(date1) {
+    var todayy = new Date();
+    const today = todayy.toISOString().split('T')[0];
+    const date2 = new Date(today); //bugünün normal formatı
+    const date3 = new Date(date1); //date1 in normal formatı
+    const Difference_In_Time = date2.getTime() - date3.getTime();
+    const Difference_In_Days = Math.abs(
+      Difference_In_Time / (1000 * 3600 * 24),
+    );
+    return parseInt(Difference_In_Days, 10);
+  }
   {
   }
   const createTwoButtonAlert = (id, barberId, date) => {
-
     Alert.alert(
       'Emin misiniz?',
       'Seçili Randevuyu iptal etmek istediğinize emin misiniz?',
@@ -179,9 +177,9 @@ const RandevularCard = ({ item, navigation }) => {
           text: 'Evet',
           onPress: () => {
             //TODO:
-            randevuIptalBool(date,barberId);
+            randevuIptalBool(date);
             deleteFromAppointments(id);
-            readRecord();
+              readRecord();
             getMyAppointments();
             getBarberAppointments();
           },
@@ -189,9 +187,6 @@ const RandevularCard = ({ item, navigation }) => {
       ],
     );
   };
-  
- 
-    
 
   return (
     <View style={styles.container}>
@@ -203,20 +198,16 @@ const RandevularCard = ({ item, navigation }) => {
           <ActivityIndicator size="large" />
         ) : (
           <View>
-            <Text style={styles.barber_label}>{barberName}</Text>
+            <Text style={styles.barber_label}>{userName}</Text>
             <Text style={styles.barber_address}>{item.address} </Text>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={styles.barber_address}>{barberPhone}</Text>
+              <Text style={styles.barber_address}>{userPhone}</Text>
 
               <TouchableOpacity
                 onPress={() => {
-                  console.log(
-                    '>>>>>berber idsi:' + item.barberId,
-                  ); // alınan randevunun berber idsi
-                  console.log(
-                    '>>>>> randevu idsi: ' + item.id,
-                  ); //musterinin aldıgı randevu idssi
+                  console.log('>>>>>berber idsi:' + item.barberId); // alınan randevunun berber idsi
+                  console.log('>>>>> randevu idsi: ' + item.id); //musterinin aldıgı randevu idssi
                   createTwoButtonAlert(item.id, item.barberId, item.date);
                 }}>
                 <View style={styles.cancel_button}>
@@ -232,7 +223,6 @@ const RandevularCard = ({ item, navigation }) => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -302,11 +292,10 @@ const styles = StyleSheet.create({
     elevation: 5,
     justifyContent: 'center',
     alignItems: 'center',
-
   },
 });
 
-export default RandevularCard;
+export default BarberRandevularCard;
 /*
 'UPDATE barbers set today=? tomorrow'
 */

@@ -41,7 +41,15 @@ const nextDay1 = nextDayy.toISOString().split('T')[0];
 
 //Useefffect kullan
 export default function Third({ route, navigation }) {
-  const {allBarbers, setAllBarbers, db} = useContext(SiteContext);
+  const {
+    allBarbers,
+    setAllBarbers,
+    db,
+    barberAppo,
+    setBarberAppo,
+    myAppo,
+    setMyAppo,
+  } = useContext(SiteContext);
   let [userData, setUserData] = useState({});
   const _id = route.params.id;
   // setUserData(results.rows.item(0)); or alert
@@ -72,6 +80,26 @@ export default function Third({ route, navigation }) {
       });
     });
   };
+    const getMyAppointments = () => {
+      db.transaction(tx => {
+        tx.executeSql(
+          'SELECT * FROM appointments where userId = ?',
+          [userId],
+          (tx, results) => {
+            var len = results.rows.length;
+            if (len > 0) {
+              var temp = [];
+              for (let index = 0; index < len; index++) {
+                temp.push(results.rows.item(index));
+              }
+              setMyAppo(temp);
+            } else {
+              setMyAppo(temp);
+            }
+          },
+        );
+      });
+    };
 
   function createAppointmentsTable() {
     db.transaction(tx => {
@@ -162,12 +190,34 @@ export default function Third({ route, navigation }) {
       }
     });
   }
+  const getBarberAppointments = () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT * FROM appointments where barberId = ?',
+        [1],
+        (tx, results) => {
+          var len = results.rows.length;
+          if (len > 0) {
+            var temp = [];
+            for (let index = 0; index < len; index++) {
+              temp.push(results.rows.item(index));
+            }
+            setBarberAppo(temp);
+          } else {
+            setBarberAppo(temp);
+          }
+        },
+      );
+    });
+  };
   const randevuAl = (date, address, type) => {
     // boolean and appointmets
     updateUser(type);
     addAppointments(address, date);
     getBarbers();
     readRecord();
+    getBarberAppointments();
+    getMyAppointments();
   };
   //createTwoButtonAlert(day, type)}>
   function myAppointments(day, isAvailable, type) {

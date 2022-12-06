@@ -55,13 +55,16 @@ function Router() {
   const [allBarbers, setAllBarbers] = useState({});
   const [db, setDb] = useState(db1);
   const [myAppo, setMyAppo] = useState({});
+  const [barberAppo, setBarberAppo] = useState({});
 
   const data = {
     allBarbers,
     setAllBarbers,
     db,
     myAppo,
-    setMyAppo
+    setMyAppo,
+    barberAppo,
+    setBarberAppo,
   };
 
   return (

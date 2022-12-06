@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import InfoCard from '../components/InfoCard.js/InfoCard';
+import BarberRandevularCard from '../components/BarberRandevular/BarberRandevular';
 import SQLite from 'react-native-sqlite-storage';
 import { openDatabase } from 'react-native-sqlite-storage';
 import {SiteContext, useContext} from '../context/SiteContext';
@@ -45,16 +46,21 @@ const cancelText = 'İptal Et';
 
 
 export default function Fourth({ navigation }) {
-   const {allBarbers, setAllBarbers, db, myAppo, setMyAppo} =
-     useContext(SiteContext);
-  var todayy = new Date();
-var tomorroww = new Date(todayy);
-var nextDayy = new Date(todayy);
-tomorroww.setDate(tomorroww.getDate() + 1);
-nextDayy.setDate(nextDayy.getDate() + 2);
-const today = todayy.toISOString().split('T')[0];
-const tomorrow = tomorroww.toISOString().split('T')[0];
-const nextDay = nextDayy.toISOString().split('T')[0];
+   const {
+     allBarbers,
+     setAllBarbers,
+     db,
+     myAppo,
+     setMyAppo,
+     barberAppo,
+     setBarberAppo,
+  } = useContext(SiteContext);
+  const renderBarberRandevularCard = ({item}) => {
+    return (
+      <BarberRandevularCard item={item} navigation={navigation}></BarberRandevularCard>
+    );
+  };
+
   useEffect(() => {
     getBarberData();
     getBarberAppointments();
@@ -63,9 +69,9 @@ const nextDay = nextDayy.toISOString().split('T')[0];
 
   const [currentBarberId, setCurrentBarberId] = useState(1);
   const [barberData, setBarberData] = useState({});
-  const [barberAppointments, setBarberAppointments] = useState({});
-  const [filteredData, setFilteredData] = useState({});
 
+
+  // Bizim berberin bilgilerini getiriyor useEffect ile lazım
   const getBarberData = () => {
       db.transaction(tx => {
         tx.executeSql(
@@ -82,6 +88,8 @@ const nextDay = nextDayy.toISOString().split('T')[0];
         );
       });
   }
+
+  //Bizim berberin randevularını  randevular tablosundan getiriyor
 const getBarberAppointments = () => {
   db.transaction(tx => {
     tx.executeSql(
@@ -94,7 +102,7 @@ const getBarberAppointments = () => {
           for (let index = 0; index < len; index++) {
             temp.push(results.rows.item(index));
           }
-          setBarberAppointments(temp);
+          setBarberAppo(temp);
         } else {
           //alert('No user found');
         }
@@ -102,162 +110,10 @@ const getBarberAppointments = () => {
     );
   });
 };
-const readRecord = () => {
-  db.transaction(tx => {
-    tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
-      var temp = [];
-      for (let index = 0; index < result.rows.length; index++) {
-        temp.push(result.rows.item(index));
-      }
-      setAllBarbers(temp);
-    });
-  });
-};
-  
-  function deleteFromAppointments(id) {
-     db.transaction(tx => {
-       tx.executeSql(
-         'DELETE FROM appointments where id = ? ',
-         [id],
-         (tx, result) => {
-           console.log(`tx`, tx);
-           console.log(`result`, result);
-         },
-       );
-     });
-  }
-  
 
-  //TODO: BOOKMARKS EXTENSION SAVES TODOS
-  function barberBoolCancel(date,barberId) {
-    const checkToday = diffInToday(date);
-    var value =
-      checkToday == 0
-        ? 'UPDATE barbers set today=? where id=?'
-        : checkToday == 1
-        ? 'UPDATE barbers set tomorrow=? where id=?'
-        : checkToday == 2
-        ? 'UPDATE barbers set nextDay=? where id=?'
-        : '';
-    db.transaction(tx => {
-      tx.executeSql(value, [0, barberId], (tx, results) => {
-        if (results.rowsAffected > 0) {
-          Alert.alert(
-            'Success',
-            'User updated successfully',
-            [
-              {
-                text: 'Ok',
-                onPress: () => {},
-              },
-            ],
-            {cancelable: false},
-          );
-        } else alert('Updation Failed');
-      });
-    });
-   
-   
-  }
-  //TODO:
-  function diffInToday(date1) {
-    var todayy = new Date();
-    const today = todayy.toISOString().split('T')[0];
-    const date2 = new Date(today); //bugünün normal formatı
-    const date3 = new Date(date1); //date1 in normal formatı
-    const Difference_In_Time = date2.getTime() - date3.getTime();
-    const Difference_In_Days = Math.abs(
-      Difference_In_Time / (1000 * 3600 * 24),
-    );
-    return parseInt(Difference_In_Days, 10);
-  }
-  //TODO:
-
-  const createTwoButtonAlert = (date, a) => {
-    Alert.alert(
-      'Emin misiniz?',
-      'Seçili Randevuyu iptal etmek istediğinize emin misiniz?',
-      [
-        {
-          text: 'Hayır',
-          onPress: () => {},
-          style: 'cancel',
-        },
-        {
-          text: 'Evet',
-          onPress: () => {
-            if (a[0].id >0) {
-              console.log('id:', a[0].id + 'barberId: ', a[0].barberId);
-              deleteFromAppointments(a[0].id);
-              barberBoolCancel(date, a[0].barberId);
-              getBarberAppointments();
-              getBarberData();
-              readRecord();
-              console.log("-----------------");
-              
-
-            } else {
-              console.log('+++++++GIREMEDI+++++++++++');
-            }
-          },
-        },
-      ],
-    );
-  };
-
-  //card
-  function myAppointmentCard(gunString) {
-    return (
-      <View style={styles.view5}>
-        <View style={styles.view6}>
-          <Text style={styles.text3}>{gunString}</Text>
-        </View>
-        <View style={styles.view7}>
-          <View style={styles.view8}>
-            <Text style={styles.text4}>{isim}</Text>
-            <Text style={styles.text4}>{numara}</Text>
-          </View>
-          <View style={styles.view9}>
-            <TouchableOpacity
-              style={styles.cancel_button}
-              onPress={() => {
-                console.log("barberAppointments",barberAppointments)
-                var a = barberAppointments
-                  .filter(item => item.date == gunString)
-                  .map(({id, date, barberId, userId}) => ({
-                    id,
-                    date,
-                    barberId,
-                    userId,
-                  }));
-                if (a.length > 0) {
-                  console.log('a[0].id', a[0].id);
-                  console.log('a[0].date', a[0].date);
-                  console.log('a[0].barberId', a[0].barberId);
-                  console.log('a[0].userId', a[0].userId);
-                  setFilteredData(a);
-                  createTwoButtonAlert(gunString, a);
-                } else {
-                  console.log(barberAppointments)
-                  alert("Verı gözükmyüor ya da tarih sorunu TEKRAR DENE")
-                }
-                
-              }}>
-              <Text style={styles.text5}>{cancelText}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    );
-  }
-
-
-
-  //TODO: naming style
   return (
-    <SafeAreaView style={{flex: 1}}>
-      <ScrollView
-      >
+    <SafeAreaView style={styles.container}>
+      <View>
         <View>
           <ImageBackground
             style={styles.images_bg}
@@ -269,7 +125,6 @@ const readRecord = () => {
         <View>
           <Text style={styles.text1}>{text1}</Text>
         </View>
-        <View style={styles.view2}></View>
         <InfoCard text={barberData.name} imageUri={ppImage}></InfoCard>
         <View style={styles.view3} />
         <InfoCard text={barberData.email} imageUri={emailImage}></InfoCard>
@@ -283,28 +138,23 @@ const readRecord = () => {
         <View style={styles.view4}>
           <Text style={styles.text2}>{randevularimText}</Text>
         </View>
-        {barberData.today==null ? (
+      </View>
+        {barberData.today == null ? (
           <ActivityIndicator></ActivityIndicator>
         ) : (
-            <View>
-              <Button title='yenile' onPress={() => {
-                getBarberData();
-              }}></Button>
-            <View>{barberData.today==1 ? myAppointmentCard(today) : null}</View>
-            <View>
-              {barberData.tomorrow==1 ? myAppointmentCard(tomorrow) : null}
-            </View>
-            <View>
-              {barberData.nextDay==1 ? myAppointmentCard(nextDay) : null}
-            </View>
-          </View>
+          <FlatList
+            data={barberAppo}
+            renderItem={renderBarberRandevularCard}
+            keyExtractor={item => item.id}
+          />
         )}
-      </ScrollView>
     </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    flex: 1,
+  },
   images_bg: {
     resizeMode: 'stretch',
     width: Dimensions.get('window').width,
@@ -359,7 +209,6 @@ const styles = StyleSheet.create({
   //         Views
 
   view1: {height: h * 0.01},
-  view2: {height: h * 0.03},
   view3: {
     borderWidth: 1,
     borderColor: 'black',

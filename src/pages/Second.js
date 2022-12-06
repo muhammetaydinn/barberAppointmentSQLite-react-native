@@ -113,12 +113,6 @@ const Second = ({ navigation }) => {
       <View style={styles.seperator} />
       <View style={{marginTop: 15}}>
         <Text style={styles.header_text}>{appointments}</Text>
-        <Button
-          title="ilk veri getir"
-          onPress={() => {
-            getMyAppointments();
-            console.log(myAppo);
-          }}></Button>
       </View>
       {false ? (
         <ActivityIndicator size="large" />

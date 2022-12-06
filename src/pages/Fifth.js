@@ -21,7 +21,15 @@ const h = Dimensions.get('window').height;
 //"SELECT name FROM sqlite_master WHERE type='table' AND name='barbers'",
 const Fifth = () => {
   const [cliked, setClicked] = useState(false);
-  const { allBarbers, setAllBarbers, db } = useContext(SiteContext);
+  const {
+    allBarbers,
+    setAllBarbers,
+    db,
+    barberAppo,
+    setBarberAppo,
+    myAppo,
+    setMyAppo,
+  } = useContext(SiteContext);
    const addUser = () => {
      db.transaction(tx => {
        try {
@@ -156,6 +164,26 @@ const Fifth = () => {
       });
     };
     //ID
+  const getMyAppointments = () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT * FROM appointments where userId = ?',
+        [1],
+        (tx, results) => {
+          var len = results.rows.length;
+          if (len > 0) {
+            var temp = [];
+            for (let index = 0; index < len; index++) {
+              temp.push(results.rows.item(index));
+            }
+            setMyAppo(temp);
+          } else {
+            setMyAppo(temp);
+          }
+        },
+      );
+    });
+  };
     const readRecord = () => {
       db.transaction(tx => {
         tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
@@ -287,6 +315,7 @@ const Fifth = () => {
               onPress={() => {
                 addUser();
                 setClicked(true);
+                getMyAppointments();
                 
               }}
               disabled={cliked}></Button>
