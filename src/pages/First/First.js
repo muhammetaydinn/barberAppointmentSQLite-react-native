@@ -1,31 +1,25 @@
 import React, {useState, useEffect} from 'react';
 import {
-  StyleSheet,
   View,
   FlatList,
-  Dimensions,
   TouchableOpacity,
   Image,
   Text,
 } from 'react-native';
-import BarberCard from '../components/BarberCard/BarberCard';
-import { SiteContext,useContext } from '../context/SiteContext';
-import SearchBar from '../components/SearchBar/SearchBar';
+import BarberCard from '../../components/BarberCard/BarberCard';
+import {SiteContext, useContext} from '../../context/SiteContext';
+import SearchBar from '../../components/SearchBar/SearchBar';
 import SwitchSelector from 'react-native-switch-selector';
-import {Images} from "../constants/Images"
-const First = ({ navigation }) => {
-
-  const {allBarbers,  db, list2,wholeBarbers} =
-    useContext(SiteContext);
-   const [list, setList] = useState(allBarbers);
+import { Images } from '../../constants/Images';
+import styles from './First.style'
+const First = ({navigation}) => {
+  const {allBarbers, db, list2, wholeBarbers} = useContext(SiteContext);
+  const [list, setList] = useState(allBarbers);
   const [gender, setGender] = useState(false);
 
-    
   const handleBarberSelect = id => {
-    navigation.navigate('Third', { id });
+    navigation.navigate('Third', {id});
   };
-    
-   
 
   const handleSearch = text => {
     if (list2.length > 0) {
@@ -36,23 +30,21 @@ const First = ({ navigation }) => {
       });
       setList(filteredList);
     } else {
-      const filteredList = {}
+      const filteredList = {};
       setList(filteredList);
     }
-    
   };
   const handleGender = value => {
-     if (list2.length > 0) {
-       const filteredlist = list2.filter(item => {
-         return !item.gender == value;
-       });
+    if (list2.length > 0) {
+      const filteredlist = list2.filter(item => {
+        return !item.gender == value;
+      });
 
-       setList(filteredlist);
-     } else {
-       const filteredList = {};
-       setList(filteredList);
-     }
-    
+      setList(filteredlist);
+    } else {
+      const filteredList = {};
+      setList(filteredList);
+    }
   };
   function createUsersTable() {
     console.log('createUsersTable');
@@ -79,11 +71,8 @@ const First = ({ navigation }) => {
       );
     });
   }
- 
 
-  
-    
-  const renderBarberCard = ({ item }) => {
+  const renderBarberCard = ({item}) => {
     return (
       <BarberCard
         item={item}
@@ -93,38 +82,25 @@ const First = ({ navigation }) => {
       />
     );
   };
-  
- 
-  useEffect(
-    () => {
-      wholeBarbers();
-      createUsersTable();
-      createTimeTable();
-      setList(allBarbers);
-  
-    },
-    [],
-  );
 
- 
-    
-  
+  useEffect(() => {
+    wholeBarbers();
+    createUsersTable();
+    createTimeTable();
+    setList(allBarbers);
+  }, []);
+
   return (
     <View>
-      <View style={{flexDirection: 'row'}}>
-        <View
-          style={{
-            width: (Dimensions.get('window').width / 5.0) * 4,
-          }}>
+      <View style={styles.view1}>
+        <View style={styles.view2}>
           <SearchBar onSearch={handleSearch} />
         </View>
         <TouchableOpacity
           onPress={() => navigation.navigate('Second')}
-          style={{
-            width: (Dimensions.get('window').width / 5.0) * 1,
-          }}>
+          style={styles.touchable}>
           <Image
-            style={{flex: 1, resizeMode: 'center', tintColor: 'gray'}}
+            style={styles.image}
             source={{
               uri: Images.profilePic,
             }}></Image>
@@ -159,23 +135,17 @@ const First = ({ navigation }) => {
           columnWrapperStyle={{justifyContent: 'space-between'}}
         />
       ) : (
-          <View style={{ alignSelf: 'center' }}>
-            <View style={{height:Dimensions.get('window').height*0.2}}></View>
-            
-            <Text style={{ flex: 1 , textAlign:'center', marginHorizontal:50 , fontSize:20,fontWeight:'bold'}}>Berber Yok Berber Eklemek İçin Admin Kısmına Gidin</Text>
-           
-            
+        <View style={styles.view3}>
+          <View style={styles.view4}></View>
+
+          <Text style={styles.text}>
+            Berber Yok Berber Eklemek İçin Admin Kısmına Gidin
+          </Text>
         </View>
       )}
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-});
 
 export default First;

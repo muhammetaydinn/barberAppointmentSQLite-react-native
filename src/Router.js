@@ -1,16 +1,16 @@
-import React,{useEffect, useState}from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, Button, FlatList} from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import First from './pages/First';
-import Second from './pages/Second';
-import Third from './pages/Third';
-import Fourth from './pages/Fourth';
-import Fifth from './pages/Fifth';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import First from './pages/First/First';
+import Second from './pages/Second/Second';
+import Third from './pages/Third/Third';
+import Fourth from './pages/Fourth/Fourth';
+import Fifth from './pages/Fifth/Fifth';
 
-import { SiteContext } from './context/SiteContext';
+import {SiteContext} from './context/SiteContext';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 //const [data, setData] = useState([]);
@@ -28,10 +28,7 @@ const db1 = SQLite.openDatabase(
   },
 );
 const CustomerStack = () => {
-
   return (
-   
-
     <Stack.Navigator>
       <Stack.Screen
         name="First"
@@ -68,7 +65,7 @@ function Router() {
         setList2(temp);
       });
     });
-  }
+  };
   const myBarberAppointments = () => {
     db.transaction(tx => {
       tx.executeSql(
@@ -88,7 +85,7 @@ function Router() {
         },
       );
     });
-  }
+  };
   const userAppointments = () => {
     db.transaction(tx => {
       tx.executeSql(
@@ -108,8 +105,7 @@ function Router() {
         },
       );
     });
-    
-  }
+  };
 
   const data = {
     allBarbers,
@@ -161,6 +157,5 @@ function Router() {
     </SiteContext.Provider>
   );
 }
-
 
 export default Router;

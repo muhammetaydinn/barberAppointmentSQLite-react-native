@@ -9,46 +9,39 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import InfoCard from '../components/InfoCard.js/InfoCard';
-import RandevularCard from '../components/Randevular/Randevular';
-import { SiteContext, useContext } from '../context/SiteContext';
-import { Images } from '../constants/Images';
-import { Strings } from '../constants/Strings';
-
-const w = Dimensions.get('window').width;
-const h = Dimensions.get('window').height;
-//user eklemek istersen
+import InfoCard from '../../components/InfoCard.js/InfoCard';
+import {SiteContext, useContext} from '../../context/SiteContext';
+import RandevularCard from '../../components/Randevular/Randevular';
+import styles from './Second.style'
+import {Images} from '../../constants/Images';
+import {Strings} from '../../constants/Strings';
 
 const userId = 1;
 
-const Second = ({ navigation }) => {
-  const { db, myAppo,  userAppointments} =
-    useContext(SiteContext);
+const Second = ({navigation}) => {
+  const {db, myAppo, userAppointments} = useContext(SiteContext);
   let [userData, setUserData] = useState({});
-  
-    const renderRandevularCard = ({item}) => {
-      return (
-        <RandevularCard
-      
-          item={item}
-          navigation={navigation}></RandevularCard>
+
+  const renderRandevularCard = ({item}) => {
+    return (
+      <RandevularCard item={item} navigation={navigation}></RandevularCard>
+    );
+  };
+  function getUserData() {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT * FROM users where id = ?',
+        [userId],
+        (tx, results) => {
+          var len = results.rows.length;
+          if (len > 0) {
+            setUserData(results.rows.item(0));
+          } else {
+            //alert('No user found');
+          }
+        },
       );
-    };
-   function getUserData() {
-     db.transaction(tx => {
-       tx.executeSql(
-         'SELECT * FROM users where id = ?',
-         [userId],
-         (tx, results) => {
-           var len = results.rows.length;
-           if (len > 0) {
-             setUserData(results.rows.item(0));
-           } else {
-             //alert('No user found');
-           }
-         },
-       );
-     });
+    });
   }
 
   useEffect(() => {
@@ -56,7 +49,7 @@ const Second = ({ navigation }) => {
     userAppointments();
   }, []);
   console.log(myAppo);
- 
+
   return (
     <SafeAreaView style={styles.container}>
       <View>
@@ -86,9 +79,10 @@ const Second = ({ navigation }) => {
       </View>
       {userData.name == null ? (
         <View style={{alignSelf: 'center'}}>
-          <TouchableOpacity onPress={() => {
-            getUserData();
-          }}>
+          <TouchableOpacity
+            onPress={() => {
+              getUserData();
+            }}>
             <View
               style={{height: Dimensions.get('window').height * 0.1}}></View>
 
@@ -114,33 +108,7 @@ const Second = ({ navigation }) => {
       )}
     </SafeAreaView>
   );
-  
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  profile: {
-    width: w * 0.2,
-    height: w * 0.2,
-    alignSelf: 'center',
-    marginTop: 50,
-  },
-  space: {height: h * 0.01},
-  header_text: {
-    textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 20,
-    color: 'black',
-  },
-  space3: {height: h * 0.03},
-  seperator: {
-    borderWidth: 1,
-    borderColor: 'black',
-    marginHorizontal: w * 0.05,
-  },
-});
 
 
 export default Second;

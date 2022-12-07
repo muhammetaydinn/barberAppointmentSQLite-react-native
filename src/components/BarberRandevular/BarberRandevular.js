@@ -1,23 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
+import {View, Text, TouchableOpacity, Alert} from 'react-native';
 import {SiteContext, useContext} from '../../context/SiteContext';
+import styles from './BarberRandevular.style';
 //TODO: NAME BOOLUPDATEFALSE
 const BarberRandevularCard = ({item, navigation}) => {
   console.log('BarberRandevular ITEM: ', item);
-  const {
-    db,
-    wholeBarbers,
-    myBarberAppointments,
-    userAppointments,
-  } = useContext(SiteContext);
+  const {db, wholeBarbers, myBarberAppointments, userAppointments} =
+    useContext(SiteContext);
 
   const [userName, setUserName] = useState('');
   const [userPhone, setUserPhone] = useState('');
@@ -40,13 +29,10 @@ const BarberRandevularCard = ({item, navigation}) => {
     });
   };
 
-
   useEffect(() => {
     getUserName();
     myBarberAppointments();
   }, []);
-
-
 
   function randevuIptalBool(date, barberId) {
     const checkToday = diffInToday(date);
@@ -78,8 +64,6 @@ const BarberRandevularCard = ({item, navigation}) => {
     });
   }
   function deleteFromAppointments(id) {
-    //Id ile silersin
-    //delete From APPOİNTMENTS
     db.transaction(function (tx) {
       var query = 'DELETE FROM appointments WHERE id = ?';
       tx.executeSql(
@@ -140,7 +124,7 @@ const BarberRandevularCard = ({item, navigation}) => {
         <View style={styles.innest_container1}>
           <Text style={styles.date_text}>{item.date}</Text>
         </View>
-        {(
+        {
           <View>
             <Text style={styles.barber_label}>{userName}</Text>
             <Text style={styles.barber_address}>{} </Text>
@@ -162,84 +146,10 @@ const BarberRandevularCard = ({item, navigation}) => {
               </TouchableOpacity>
             </View>
           </View>
-        )}
+        }
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    height: Dimensions.get('window').height * 0.3,
-    width: Dimensions.get('window').width,
-  },
-  inner_container: {
-    height: Dimensions.get('window').height * 0.25,
-    margin: 10,
-    backgroundColor: 'gray',
-    borderRadius: 10,
-  },
-  innest_container1: {
-    height: Dimensions.get('window').height * 0.07,
-    backgroundColor: 'purple',
-    borderRadius: 10,
-    marginTop: 15,
-    marginHorizontal: 10,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-
-    elevation: 5,
-  },
-  date_text: {
-    textAlign: 'left',
-    marginLeft: 20,
-    fontSize: 20,
-    color: 'white',
-    fontWeight: '500',
-  },
-  barber_label: {
-    marginTop: 10,
-    textAlign: 'left',
-    marginLeft: 20,
-    fontSize: 21,
-    color: 'white',
-    fontWeight: '500',
-  },
-  barber_address: {
-    marginTop: 10,
-    textAlign: 'left',
-    marginLeft: 20,
-    fontSize: 16,
-    color: 'white',
-    fontWeight: '500',
-  },
-  cancel_button: {
-    height: Dimensions.get('window').height * 0.05,
-    width: Dimensions.get('window').width * 0.2,
-    backgroundColor: '#ff77a9',
-    borderRadius: 10,
-    marginHorizontal: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
-
 export default BarberRandevularCard;
-/*
-'UPDATE barbers set today=? tomorrow'
-*/
