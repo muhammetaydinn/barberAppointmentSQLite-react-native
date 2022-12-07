@@ -1,14 +1,48 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, FlatList, Button } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  Button,
+  Dimensions,
+  TouchableOpacity,
+  Image
+} from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 import {openDatabase} from 'react-native-sqlite-storage';
 import BarberCard from '../components/BarberCard/BarberCard';
 import { SiteContext,useContext } from '../context/SiteContext';
-
+import SearchBar from '../components/SearchBar/SearchBar';
+import SwitchSelector from 'react-native-switch-selector';
 const First = ({ navigation }) => {
-  const { allBarbers, setAllBarbers , db} = useContext(SiteContext);
+
+  const {allBarbers, setAllBarbers, db, list2, setList2} =
+    useContext(SiteContext);
+   const [list, setList] = useState(allBarbers);
+  const [gender, setGender] = useState(false);
+
+    
   const handleBarberSelect = id => {
     navigation.navigate('Third', { id });
+  };
+    
+   
+
+  const handleSearch = text => {
+    const filteredList = list2.filter(barber => {
+      const searchedText = text.toLowerCase();
+      const currentTitle = barber.name.toLowerCase();
+      return currentTitle.indexOf(searchedText) > -1;
+    });
+    setList(filteredList);
+  };
+  const handleGender = value => {
+    const filteredlist = list2.filter(item => {
+      return !item.gender == value;
+    });
+
+    setList(filteredlist);
   };
   function createUsersTable() {
     console.log('createUsersTable');
@@ -58,6 +92,7 @@ const First = ({ navigation }) => {
            temp.push(result.rows.item(index));
          }
          setAllBarbers(temp);
+         setList2(temp)
          console.log('setAllBarbers lengthFirst' + allBarbers.length);
        });
      });
@@ -67,6 +102,8 @@ const First = ({ navigation }) => {
       readRecord();
       createUsersTable();
       createTimeTable();
+      setList(allBarbers);
+  
     },
     [],
   );
@@ -76,14 +113,47 @@ const First = ({ navigation }) => {
   
   return (
     <View>
-    
-      <Button title="Profile" onPress={() => {
-        navigation.navigate('Second');
-      }}></Button>
-      <Button title="getBarbers" onPress={readRecord}></Button>
+      <View style={{flexDirection: 'row'}}>
+        <View
+          style={{
+            width: (Dimensions.get('window').width / 5.0) * 4,
+          }}>
+          <SearchBar onSearch={handleSearch} />
+        </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Second')}
+          style={{
+            width: (Dimensions.get('window').width / 5.0) * 1,
+          }}>
+          <Image
+            style={{flex: 1, resizeMode: 'center', tintColor: 'gray'}}
+            source={{
+              uri: 'https://pic.onlinewebfonts.com/svg/img_568656.png',
+            }}></Image>
+        </TouchableOpacity>
+      </View>
+      <SwitchSelector
+        initial={1}
+        onPress={value => {
+          //console.log(value);
+          setGender(value);
+          handleGender(value);
+        }}
+        textColor={'gray'} //'#7a44cf'
+        selectedColor={'white'}
+        buttonColor={'gray'}
+        borderColor={'gray'}
+        hasPadding
+        options={[
+          {label: 'Erkek', value: true},
+          {label: 'Kadın', value: false},
+        ]}
+        testID="gender-switch-selector"
+        accessibilityLabel="gender-switch-selector"
+      />
 
       <FlatList
-        data={allBarbers}
+        data={list}
         renderItem={renderBarberCard}
         //refreshing={false}
         //onRefresh={getBarbers}

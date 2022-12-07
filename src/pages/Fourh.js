@@ -69,6 +69,7 @@ export default function Fourth({ navigation }) {
 
   const [currentBarberId, setCurrentBarberId] = useState(1);
   const [barberData, setBarberData] = useState({});
+  
 
 
   // Bizim berberin bilgilerini getiriyor useEffect ile lazım

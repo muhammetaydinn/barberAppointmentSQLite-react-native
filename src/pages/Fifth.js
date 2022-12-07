@@ -29,6 +29,7 @@ const Fifth = () => {
     setBarberAppo,
     myAppo,
     setMyAppo,
+    setList2
   } = useContext(SiteContext);
    const addUser = () => {
      db.transaction(tx => {
@@ -192,6 +193,7 @@ const Fifth = () => {
             temp.push(result.rows.item(index));
           }
           setAllBarbers(temp);
+          setList2(temp);
           console.log('setAllBarbers lengthFirst' + allBarbers.length);
         });
       });

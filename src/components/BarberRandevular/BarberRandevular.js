@@ -78,7 +78,8 @@ const BarberRandevularCard = ({item, navigation}) => {
         for (let index = 0; index < result.rows.length; index++) {
           temp.push(result.rows.item(index));
         }
-        setAllBarbers(temp);
+          setAllBarbers(temp);
+          
       });
     });
   };
