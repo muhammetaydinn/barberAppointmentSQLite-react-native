@@ -2,59 +2,29 @@ import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
-  Button,
-  Image,
   Dimensions,
   FlatList,
   ActivityIndicator,
   ImageBackground,
-  ScrollView,
+  StyleSheet,
   Touchable,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  RefreshControl,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import InfoCard from '../components/InfoCard.js/InfoCard';
 import BarberRandevularCard from '../components/BarberRandevular/BarberRandevular';
-import SQLite from 'react-native-sqlite-storage';
-import { openDatabase } from 'react-native-sqlite-storage';
 import {SiteContext, useContext} from '../context/SiteContext';
+import { Images } from '../constants/Images';
+import { Strings } from '../constants/Strings';
 const w = Dimensions.get('window').width;
 const h = Dimensions.get('window').height;
-const genderImage1 =
-  'https://t4.ftcdn.net/jpg/03/15/14/91/240_F_315149199_Dxpjpgtl2nZ6aw7Q8dPfn8O2mrK4zFy2.jpg';
-const genderImage2 =
-  'https://thumbs.dreamstime.com/b/dise%C3%B1o-retro-de-barberman-que-sostiene-las-podadoras-112127255.jpg';
-const text1 = 'Kuaför Bilgilerim';
-const ppImage = 'https://pic.onlinewebfonts.com/svg/img_568656.png';
-const emailImage =
-  'https://www.freepnglogos.com/uploads/email-png/company-email-svg-png-icon-download-18.png';
-const phoneImage = 'http://cdn.onlinewebfonts.com/svg/img_558585.png';
-const addressImage =
-  'https://pixsector.com/cache/2102b688/av924d89f198e4e084336.png';
-const passwordText = '********';
-const passwordImage =
-  'https://www.pngmart.com/files/16/Vector-Key-PNG-Transparent-Image.png';
-const randevularimText = 'Randevularım';
-const isim = 'Haydar Haydarolu';
-const numara = '+90 555 555 55 55';
-const cancelText = 'İptal Et';
-
-
-
 
 export default function Fourth({ navigation }) {
    const {
-     allBarbers,
-     setAllBarbers,
      db,
-     myAppo,
-     setMyAppo,
      barberAppo,
-     setBarberAppo,
-  } = useContext(SiteContext);
+     myBarberAppointments,
+   } = useContext(SiteContext);
   const renderBarberRandevularCard = ({item}) => {
     return (
       <BarberRandevularCard item={item} navigation={navigation}></BarberRandevularCard>
@@ -63,7 +33,7 @@ export default function Fourth({ navigation }) {
 
   useEffect(() => {
     getBarberData();
-    getBarberAppointments();
+    myBarberAppointments();
     
   },[])
 
@@ -91,26 +61,7 @@ export default function Fourth({ navigation }) {
   }
 
   //Bizim berberin randevularını  randevular tablosundan getiriyor
-const getBarberAppointments = () => {
-  db.transaction(tx => {
-    tx.executeSql(
-      'SELECT * FROM appointments where barberId = ?',
-      [currentBarberId],
-      (tx, results) => {
-        var len = results.rows.length;
-        if (len > 0) {
-          var temp = [];
-          for (let index = 0; index < len; index++) {
-            temp.push(results.rows.item(index));
-          }
-          setBarberAppo(temp);
-        } else {
-          //alert('No user found');
-        }
-      },
-    );
-  });
-};
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -119,36 +70,65 @@ const getBarberAppointments = () => {
           <ImageBackground
             style={styles.images_bg}
             source={{
-              uri: barberData.gender ? genderImage1 : genderImage2,
+              uri: barberData.gender
+                ? Images.manBarberImage
+                : Images.womenBarberImage,
             }}></ImageBackground>
         </View>
         <View style={styles.view1}></View>
         <View>
-          <Text style={styles.text1}>{text1}</Text>
+          <Text style={styles.text1}>{Strings.my_barber_info}</Text>
         </View>
-        <InfoCard text={barberData.name} imageUri={ppImage}></InfoCard>
+        <InfoCard
+          text={barberData.name}
+          imageUri={Images.profilePic}></InfoCard>
         <View style={styles.view3} />
-        <InfoCard text={barberData.email} imageUri={emailImage}></InfoCard>
+        <InfoCard
+          text={barberData.email}
+          imageUri={Images.mailImage}></InfoCard>
         <View style={styles.view3} />
-        <InfoCard text={barberData.phone} imageUri={phoneImage}></InfoCard>
+        <InfoCard
+          text={barberData.phone}
+          imageUri={Images.phoneImage}></InfoCard>
         <View style={styles.view3} />
-        <InfoCard text={barberData.address} imageUri={addressImage}></InfoCard>
+        <InfoCard
+          text={barberData.address}
+          imageUri={Images.addressImage}></InfoCard>
         <View style={styles.view3} />
-        <InfoCard text={passwordText} imageUri={passwordImage}></InfoCard>
+        <InfoCard
+          text={Strings.password_hidden}
+          imageUri={Images.passwordImage}></InfoCard>
         <View style={styles.view3} />
         <View style={styles.view4}>
-          <Text style={styles.text2}>{randevularimText}</Text>
+          <Text style={styles.text2}>{Strings.my_appointments}</Text>
         </View>
       </View>
-        {barberData.today == null ? (
-          <ActivityIndicator></ActivityIndicator>
-        ) : (
-          <FlatList
-            data={barberAppo}
-            renderItem={renderBarberRandevularCard}
-            keyExtractor={item => item.id}
-          />
-        )}
+      {barberData.today == null ? (
+        <View style={{alignSelf: 'center'}}>
+          <TouchableOpacity onPress={getBarberData}>
+            <View
+              style={{height: Dimensions.get('window').height * 0.1}}></View>
+
+            <Text
+              style={{
+                flex: 1,
+                textAlign: 'center',
+                marginHorizontal: 50,
+                fontSize: 20,
+                fontWeight: 'bold',
+              }}>
+              Berber Yok Berber Eklemek İçin Admin Kısmına Gidin ya da
+              Eklediyseniz Tıklayın
+            </Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={barberAppo}
+          renderItem={renderBarberRandevularCard}
+          keyExtractor={item => item.id}
+        />
+      )}
     </SafeAreaView>
   );
 }

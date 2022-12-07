@@ -4,25 +4,18 @@ import {
   Text,
   StyleSheet,
   Dimensions,
-  TouchableWithoutFeedback,
   TouchableOpacity,
-  ActivityIndicator,
   Alert,
 } from 'react-native';
-import SQLite from 'react-native-sqlite-storage';
-import {openDatabase} from 'react-native-sqlite-storage';
 import {SiteContext, useContext} from '../../context/SiteContext';
 //TODO: NAME BOOLUPDATEFALSE
 const RandevularCard = ({ item, navigation }) => {
   
   const {
-    allBarbers,
-    setAllBarbers,
     db,
-    myAppo,
-    setMyAppo,
-    barberAppo,
-    setBarberAppo,
+    wholeBarbers,
+    myBarberAppointments,
+    userAppointments,
   } = useContext(SiteContext);
 
   const [barberName, setBarberName] = useState("");
@@ -45,63 +38,15 @@ const RandevularCard = ({ item, navigation }) => {
       );
     });
   }
-  const getMyAppointments = () => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'SELECT * FROM appointments where userId = ?',
-        [1],
-        (tx, results) => {
-          var len = results.rows.length;
-          if (len > 0) {
-            var temp = [];
-            for (let index = 0; index < len; index++) {
-              temp.push(results.rows.item(index));
-            }
-            setMyAppo(temp);
-          } else {
-            setMyAppo(temp);
-          }
-        },
-      );
-    });
-  };
+  
  
   useEffect(() => {
     getBarberName();
-    getMyAppointments();
+    userAppointments();
   }, [])
   
- const readRecord = () => {
-   db.transaction(tx => {
-     tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
-       var temp = [];
-       for (let index = 0; index < result.rows.length; index++) {
-         temp.push(result.rows.item(index));
-       }
-       setAllBarbers(temp);
-     });
-   });
-  };
-  const getBarberAppointments = () => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'SELECT * FROM appointments where barberId = ?',
-        [1],
-        (tx, results) => {
-          var len = results.rows.length;
-          if (len > 0) {
-            var temp = [];
-            for (let index = 0; index < len; index++) {
-              temp.push(results.rows.item(index));
-            }
-            setBarberAppo(temp);
-          } else {
-            setBarberAppo(temp);
-          }
-        },
-      );
-    });
-  };
+
+
   function randevuIptalBool(date, barberId) {
      const checkToday = diffInToday(date);
    var value =
@@ -181,9 +126,9 @@ const RandevularCard = ({ item, navigation }) => {
             //TODO:
             randevuIptalBool(date,barberId);
             deleteFromAppointments(id);
-            readRecord();
-            getMyAppointments();
-            getBarberAppointments();
+            wholeBarbers();
+            userAppointments();
+            myBarberAppointments();
           },
         },
       ],
@@ -199,9 +144,7 @@ const RandevularCard = ({ item, navigation }) => {
         <View style={styles.innest_container1}>
           <Text style={styles.date_text}>{item.date}</Text>
         </View>
-        {false ? (
-          <ActivityIndicator size="large" />
-        ) : (
+        { (
           <View>
             <Text style={styles.barber_label}>{barberName}</Text>
             <Text style={styles.barber_address}>{item.address} </Text>

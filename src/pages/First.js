@@ -1,23 +1,21 @@
 import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
-  Text,
   View,
   FlatList,
-  Button,
   Dimensions,
   TouchableOpacity,
-  Image
+  Image,
+  Text,
 } from 'react-native';
-import SQLite from 'react-native-sqlite-storage';
-import {openDatabase} from 'react-native-sqlite-storage';
 import BarberCard from '../components/BarberCard/BarberCard';
 import { SiteContext,useContext } from '../context/SiteContext';
 import SearchBar from '../components/SearchBar/SearchBar';
 import SwitchSelector from 'react-native-switch-selector';
+import {Images} from "../constants/Images"
 const First = ({ navigation }) => {
 
-  const {allBarbers, setAllBarbers, db, list2, setList2} =
+  const {allBarbers,  db, list2,wholeBarbers} =
     useContext(SiteContext);
    const [list, setList] = useState(allBarbers);
   const [gender, setGender] = useState(false);
@@ -30,19 +28,31 @@ const First = ({ navigation }) => {
    
 
   const handleSearch = text => {
-    const filteredList = list2.filter(barber => {
-      const searchedText = text.toLowerCase();
-      const currentTitle = barber.name.toLowerCase();
-      return currentTitle.indexOf(searchedText) > -1;
-    });
-    setList(filteredList);
+    if (list2.length > 0) {
+      const filteredList = list2.filter(barber => {
+        const searchedText = text.toLowerCase();
+        const currentTitle = barber.name.toLowerCase();
+        return currentTitle.indexOf(searchedText) > -1;
+      });
+      setList(filteredList);
+    } else {
+      const filteredList = {}
+      setList(filteredList);
+    }
+    
   };
   const handleGender = value => {
-    const filteredlist = list2.filter(item => {
-      return !item.gender == value;
-    });
+     if (list2.length > 0) {
+       const filteredlist = list2.filter(item => {
+         return !item.gender == value;
+       });
 
-    setList(filteredlist);
+       setList(filteredlist);
+     } else {
+       const filteredList = {};
+       setList(filteredList);
+     }
+    
   };
   function createUsersTable() {
     console.log('createUsersTable');
@@ -84,22 +94,10 @@ const First = ({ navigation }) => {
     );
   };
   
-  const readRecord = () => {
-     db.transaction(tx => {
-       tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
-         var temp = [];
-         for (let index = 0; index < result.rows.length; index++) {
-           temp.push(result.rows.item(index));
-         }
-         setAllBarbers(temp);
-         setList2(temp)
-         console.log('setAllBarbers lengthFirst' + allBarbers.length);
-       });
-     });
-   };
+ 
   useEffect(
     () => {
-      readRecord();
+      wholeBarbers();
       createUsersTable();
       createTimeTable();
       setList(allBarbers);
@@ -128,7 +126,7 @@ const First = ({ navigation }) => {
           <Image
             style={{flex: 1, resizeMode: 'center', tintColor: 'gray'}}
             source={{
-              uri: 'https://pic.onlinewebfonts.com/svg/img_568656.png',
+              uri: Images.profilePic,
             }}></Image>
         </TouchableOpacity>
       </View>
@@ -151,15 +149,24 @@ const First = ({ navigation }) => {
         testID="gender-switch-selector"
         accessibilityLabel="gender-switch-selector"
       />
-
-      <FlatList
-        data={list}
-        renderItem={renderBarberCard}
-        //refreshing={false}
-        //onRefresh={getBarbers}
-        numColumns={2}
-        columnWrapperStyle={{justifyContent: 'space-between'}}
-      />
+      {list2.length > 0 ? (
+        <FlatList
+          data={list}
+          renderItem={renderBarberCard}
+          //refreshing={false}
+          //onRefresh={getBarbers}
+          numColumns={2}
+          columnWrapperStyle={{justifyContent: 'space-between'}}
+        />
+      ) : (
+          <View style={{ alignSelf: 'center' }}>
+            <View style={{height:Dimensions.get('window').height*0.2}}></View>
+            
+            <Text style={{ flex: 1 , textAlign:'center', marginHorizontal:50 , fontSize:20,fontWeight:'bold'}}>Berber Yok Berber Eklemek İçin Admin Kısmına Gidin</Text>
+           
+            
+        </View>
+      )}
     </View>
   );
 };

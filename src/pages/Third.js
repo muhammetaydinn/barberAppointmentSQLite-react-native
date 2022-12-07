@@ -2,29 +2,20 @@ import React, {isValidElement, useEffect, useState} from 'react';
 import {
   View,
   Text,
-  Button,
-  Image,
   Dimensions,
   StyleSheet,
   ImageBackground,
   ScrollView,
-  FlatList,
   TouchableOpacity,
   Alert,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import InfoCard from '../components/InfoCard.js/InfoCard';
-import SQLite from 'react-native-sqlite-storage';
 import {SiteContext, useContext} from '../context/SiteContext';
 const w = Dimensions.get('window').width;
 const h = Dimensions.get('window').height;
-const manBarberImage ='https://t4.ftcdn.net/jpg/03/15/14/91/240_F_315149199_Dxpjpgtl2nZ6aw7Q8dPfn8O2mrK4zFy2.jpg';
-const womenBarberImage ='https://thumbs.dreamstime.com/b/dise%C3%B1o-retro-de-barberman-que-sostiene-las-podadoras-112127255.jpg';
-const ppImage = 'https://pic.onlinewebfonts.com/svg/img_568656.png';
-const mailImage ='https://www.freepnglogos.com/uploads/email-png/company-email-svg-png-icon-download-18.png';
-const phoneImage = 'http://cdn.onlinewebfonts.com/svg/img_558585.png';
-const addressImage ='https://pixsector.com/cache/2102b688/av924d89f198e4e084336.png';
-const make_appointment = 'Randevu Al';
+import {Images} from '../constants/Images';
+import {Strings} from '../constants/Strings';
 // //TODO:  if (!inputUserId) {
 //       alert('Please fill User id');
 //       return;
@@ -42,13 +33,10 @@ const nextDay1 = nextDayy.toISOString().split('T')[0];
 //Useefffect kullan
 export default function Third({ route, navigation }) {
   const {
-    allBarbers,
-    setAllBarbers,
     db,
-    barberAppo,
-    setBarberAppo,
-    myAppo,
-    setMyAppo,
+    wholeBarbers,
+    myBarberAppointments,
+    userAppointments,
   } = useContext(SiteContext);
   let [userData, setUserData] = useState({});
   const _id = route.params.id;
@@ -69,37 +57,8 @@ export default function Third({ route, navigation }) {
       );
     });
   }
-  const readRecord = () => {
-    db.transaction(tx => {
-      tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
-        var temp = [];
-        for (let index = 0; index < result.rows.length; index++) {
-          temp.push(result.rows.item(index));
-        }
-        setAllBarbers(temp);
-      });
-    });
-  };
-    const getMyAppointments = () => {
-      db.transaction(tx => {
-        tx.executeSql(
-          'SELECT * FROM appointments where userId = ?',
-          [userId],
-          (tx, results) => {
-            var len = results.rows.length;
-            if (len > 0) {
-              var temp = [];
-              for (let index = 0; index < len; index++) {
-                temp.push(results.rows.item(index));
-              }
-              setMyAppo(temp);
-            } else {
-              setMyAppo(temp);
-            }
-          },
-        );
-      });
-    };
+  
+   
 
   function createAppointmentsTable() {
     db.transaction(tx => {
@@ -190,34 +149,15 @@ export default function Third({ route, navigation }) {
       }
     });
   }
-  const getBarberAppointments = () => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'SELECT * FROM appointments where barberId = ?',
-        [1],
-        (tx, results) => {
-          var len = results.rows.length;
-          if (len > 0) {
-            var temp = [];
-            for (let index = 0; index < len; index++) {
-              temp.push(results.rows.item(index));
-            }
-            setBarberAppo(temp);
-          } else {
-            setBarberAppo(temp);
-          }
-        },
-      );
-    });
-  };
+ 
   const randevuAl = (date, address, type) => {
     // boolean and appointmets
     updateUser(type);
     addAppointments(address, date);
     getBarbers();
-    readRecord();
-    getBarberAppointments();
-    getMyAppointments();
+    wholeBarbers();
+    myBarberAppointments();
+    userAppointments();
   };
   //createTwoButtonAlert(day, type)}>
   function myAppointments(day, isAvailable, type) {
@@ -251,7 +191,10 @@ export default function Third({ route, navigation }) {
             <ImageBackground
               style={styles.image}
               source={{
-                uri: userData.gender == 1 ? manBarberImage : womenBarberImage,
+                uri:
+                  userData.gender == 1
+                    ? Images.manBarberImage
+                    : Images.womenBarberImage,
               }}>
               <View style={styles.barberLabel}>
                 <View style={styles.viewAlign}>
@@ -260,16 +203,22 @@ export default function Third({ route, navigation }) {
               </View>
             </ImageBackground>
           </View>
-          <InfoCard text={userData.name} imageUri={ppImage}></InfoCard>
+          <InfoCard
+            text={userData.name}
+            imageUri={Images.profilePic}></InfoCard>
           <View style={styles.a} />
-          <InfoCard text={userData.email} imageUri={mailImage}></InfoCard>
+          <InfoCard
+            text={userData.email}
+            imageUri={Images.mailImage}></InfoCard>
           <View style={styles.a} />
-          <InfoCard text={userData.phone} imageUri={phoneImage}></InfoCard>
+          <InfoCard
+            text={userData.phone}
+            imageUri={Images.phoneImage}></InfoCard>
           <View style={styles.a} />
-          <InfoCard text={userData.address} imageUri={addressImage}></InfoCard>
+          <InfoCard text={userData.address} imageUri={Images.addressImage}></InfoCard>
           <View style={styles.a} />
           <View style={{marginTop: 15}}>
-            <Text style={styles.header_text}>{make_appointment}</Text>
+            <Text style={styles.header_text}>{Strings.make_appointment}</Text>
           </View>
           {myAppointments(today1, userData.today, '0')}
           {myAppointments(tomorrow1, userData.tomorrow, '1')}

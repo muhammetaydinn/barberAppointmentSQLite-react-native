@@ -7,35 +7,22 @@ import {
   Image,
   Dimensions,
   FlatList,
-  ActivityIndicator,
-  Button,
+  TouchableOpacity,
 } from 'react-native';
-import SQLite from 'react-native-sqlite-storage';
-import { openDatabase } from 'react-native-sqlite-storage';
 import InfoCard from '../components/InfoCard.js/InfoCard';
 import RandevularCard from '../components/Randevular/Randevular';
-import {SiteContext, useContext} from '../context/SiteContext';
-const ppImage = 'https://pic.onlinewebfonts.com/svg/img_568656.png';
-const mailImage =
-  'https://www.freepnglogos.com/uploads/email-png/company-email-svg-png-icon-download-18.png';
-const phoneImage = 'http://cdn.onlinewebfonts.com/svg/img_558585.png';
-const passwordImage =
-  'https://www.pngmart.com/files/16/Vector-Key-PNG-Transparent-Image.png';
-const appointments = 'Randevularım';
-const header = 'Kullanıcı Bilgilerim';
+import { SiteContext, useContext } from '../context/SiteContext';
+import { Images } from '../constants/Images';
+import { Strings } from '../constants/Strings';
+
 const w = Dimensions.get('window').width;
 const h = Dimensions.get('window').height;
 //user eklemek istersen
 
 const userId = 1;
 
-
-  // setUserData(results.rows.item(0)); or alert
- 
-
-
 const Second = ({ navigation }) => {
-  const {allBarbers, setAllBarbers, db, myAppo, setMyAppo} =
+  const { db, myAppo,  userAppointments} =
     useContext(SiteContext);
   let [userData, setUserData] = useState({});
   
@@ -63,29 +50,10 @@ const Second = ({ navigation }) => {
        );
      });
   }
-  const getMyAppointments = () => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'SELECT * FROM appointments where userId = ?',
-        [userId],
-        (tx, results) => {
-          var len = results.rows.length;
-          if (len > 0) {
-            var temp = [];
-            for (let index = 0; index < len; index++) {
-              temp.push(results.rows.item(index));
-            }
-            setMyAppo(temp);
-          } else {
-             setMyAppo(temp);
-          }
-        },
-      );
-    });
-  };
+
   useEffect(() => {
     getUserData();
-    getMyAppointments();
+    userAppointments();
   }, []);
   console.log(myAppo);
  
@@ -95,27 +63,48 @@ const Second = ({ navigation }) => {
         <Image
           style={styles.profile}
           source={{
-            uri: ppImage,
+            uri: Images.profilePic,
           }}></Image>
       </View>
       <View style={styles.space}></View>
       <View>
-        <Text style={styles.header_text}>{header}</Text>
+        <Text style={styles.header_text}>{Strings.header}</Text>
       </View>
       <View style={styles.space3}></View>
-      <InfoCard text={userData.name} imageUri={ppImage}></InfoCard>
+      <InfoCard text={userData.name} imageUri={Images.profilePic}></InfoCard>
       <View style={styles.seperator} />
-      <InfoCard text={userData.email} imageUri={mailImage} />
+      <InfoCard text={userData.email} imageUri={Images.mailImage} />
       <View style={styles.seperator} />
-      <InfoCard text={userData.phone} imageUri={phoneImage}></InfoCard>
+      <InfoCard text={userData.phone} imageUri={Images.phoneImage}></InfoCard>
       <View style={styles.seperator} />
-      <InfoCard text={userData.password} imageUri={passwordImage}></InfoCard>
+      <InfoCard
+        text={userData.password}
+        imageUri={Images.passwordImage}></InfoCard>
       <View style={styles.seperator} />
       <View style={{marginTop: 15}}>
-        <Text style={styles.header_text}>{appointments}</Text>
+        <Text style={styles.header_text}>{Strings.my_appointments}</Text>
       </View>
-      {false ? (
-        <ActivityIndicator size="large" />
+      {userData.name == null ? (
+        <View style={{alignSelf: 'center'}}>
+          <TouchableOpacity onPress={() => {
+            getUserData();
+          }}>
+            <View
+              style={{height: Dimensions.get('window').height * 0.1}}></View>
+
+            <Text
+              style={{
+                flex: 1,
+                textAlign: 'center',
+                marginHorizontal: 50,
+                fontSize: 20,
+                fontWeight: 'bold',
+              }}>
+              Kullanıcı Yok Kullanıcı Eklemek İçin Admin Kısmına Gidin ya da
+              Eklediyseniz Tıklayın
+            </Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <FlatList
           data={myAppo}

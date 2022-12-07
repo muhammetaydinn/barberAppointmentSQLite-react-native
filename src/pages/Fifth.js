@@ -10,7 +10,6 @@ import {
   TextInput,
   Switch,Alert, ScrollView
 } from 'react-native';
-import SQLite from 'react-native-sqlite-storage';
 import {SiteContext, useContext} from '../context/SiteContext';
 const w = Dimensions.get('window').width;
 const h = Dimensions.get('window').height;
@@ -22,14 +21,9 @@ const h = Dimensions.get('window').height;
 const Fifth = () => {
   const [cliked, setClicked] = useState(false);
   const {
-    allBarbers,
-    setAllBarbers,
     db,
-    barberAppo,
-    setBarberAppo,
-    myAppo,
-    setMyAppo,
-    setList2
+    wholeBarbers,
+    userAppointments,
   } = useContext(SiteContext);
    const addUser = () => {
      db.transaction(tx => {
@@ -138,7 +132,7 @@ const Fifth = () => {
                 phone,
             );
             addBarber();
-            readRecord();
+            wholeBarbers();
           },
         },
       ]);
@@ -165,39 +159,8 @@ const Fifth = () => {
       });
     };
     //ID
-  const getMyAppointments = () => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'SELECT * FROM appointments where userId = ?',
-        [1],
-        (tx, results) => {
-          var len = results.rows.length;
-          if (len > 0) {
-            var temp = [];
-            for (let index = 0; index < len; index++) {
-              temp.push(results.rows.item(index));
-            }
-            setMyAppo(temp);
-          } else {
-            setMyAppo(temp);
-          }
-        },
-      );
-    });
-  };
-    const readRecord = () => {
-      db.transaction(tx => {
-        tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
-          var temp = [];
-          for (let index = 0; index < result.rows.length; index++) {
-            temp.push(result.rows.item(index));
-          }
-          setAllBarbers(temp);
-          setList2(temp);
-          console.log('setAllBarbers lengthFirst' + allBarbers.length);
-        });
-      });
-    };
+ 
+   
     const deleteRecord =() => {
       db.transaction(tx => {
         tx.executeSql(
@@ -301,7 +264,7 @@ const Fifth = () => {
             {Kutu(deletingId, setDeletingId, 'Sileceğiniz kuafor idsi', 2)}
             <Button title="Sil" onPress={() => {
               deleteRecord();
-              readRecord();
+              wholeBarbers();
             }} />
             <Text
               style={{
@@ -317,12 +280,12 @@ const Fifth = () => {
               onPress={() => {
                 addUser();
                 setClicked(true);
-                getMyAppointments();
+                userAppointments();
                 
               }}
               disabled={cliked}></Button>
 
-            {/* <Button title="Oku" onPress={readRecord} /> */}
+           
             <View style={{height: h * 0.05}} />
           </View>
         </ScrollView>

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Dimensions, TextInput } from "react-native";
+import { View,  StyleSheet,  TextInput } from "react-native";
 const SearchBar = props => {
     
     return (

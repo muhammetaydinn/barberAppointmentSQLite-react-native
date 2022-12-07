@@ -1,5 +1,5 @@
 import React from "react";
-import {View, Text, StyleSheet, Dimensions, TouchableWithoutFeedback, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, Dimensions, TouchableWithoutFeedback} from 'react-native';
 
 const BarberCard = ({ item, onSelect }) => {
   

@@ -7,7 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import First from './pages/First';
 import Second from './pages/Second';
 import Third from './pages/Third';
-import Fourth from './pages/Fourh';
+import Fourth from './pages/Fourth';
 import Fifth from './pages/Fifth';
 
 import { SiteContext } from './context/SiteContext';
@@ -57,6 +57,59 @@ function Router() {
   const [myAppo, setMyAppo] = useState({});
   const [barberAppo, setBarberAppo] = useState({});
   const [list2, setList2] = useState({});
+  const wholeBarbers = () => {
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM barbers', [], (tx, result) => {
+        var temp = [];
+        for (let index = 0; index < result.rows.length; index++) {
+          temp.push(result.rows.item(index));
+        }
+        setAllBarbers(temp);
+        setList2(temp);
+      });
+    });
+  }
+  const myBarberAppointments = () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT * FROM appointments where barberId = ?',
+        [1],
+        (tx, results) => {
+          var len = results.rows.length;
+          if (len > 0) {
+            var temp = [];
+            for (let index = 0; index < len; index++) {
+              temp.push(results.rows.item(index));
+            }
+            setBarberAppo(temp);
+          } else {
+            setBarberAppo(temp);
+          }
+        },
+      );
+    });
+  }
+  const userAppointments = () => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT * FROM appointments where userId = ?',
+        [1],
+        (tx, results) => {
+          var len = results.rows.length;
+          if (len > 0) {
+            var temp = [];
+            for (let index = 0; index < len; index++) {
+              temp.push(results.rows.item(index));
+            }
+            setMyAppo(temp);
+          } else {
+            setMyAppo(temp);
+          }
+        },
+      );
+    });
+    
+  }
 
   const data = {
     allBarbers,
@@ -68,6 +121,9 @@ function Router() {
     setBarberAppo,
     list2,
     setList2,
+    wholeBarbers,
+    myBarberAppointments,
+    userAppointments,
   };
 
   return (
