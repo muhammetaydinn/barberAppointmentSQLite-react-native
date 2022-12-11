@@ -61,22 +61,10 @@ export default function Third({ route, navigation }) {
   
    
 
-  function createAppointmentsTable() {
-    db.transaction(tx => {
-      tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS appointments (id INTEGER PRIMARY KEY AUTOINCREMENT , barberId INTEGER , userId INTEGER ,  address TEXT , date TEXT)',
-        [],
-        (tx, result) => {
-          console.log('tx', tx);
-          console.log('result', result);
-        },
-      );
-    });
-  }
+  
 
   useEffect(() => {
     getBarbers();
-    createAppointmentsTable();
   }, []);
 
   //to randevuAl(_id, day, data.address, type);
@@ -206,7 +194,7 @@ export default function Third({ route, navigation }) {
           </View>
           <InfoCard
             text={userData.name}
-            imageUri={Images.profilePic}></InfoCard>
+            imageUri={'https://pic.onlinewebfonts.com/svg/img_568656.png'}></InfoCard>
           <View style={styles.a} />
           <InfoCard
             text={userData.email}
