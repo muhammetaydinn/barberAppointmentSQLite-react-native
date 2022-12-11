@@ -60,16 +60,7 @@ const Fifth = () => {
 
   // id email name address gender phone today tomorrow nextDay
   useEffect(() => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS barbers (id INTEGER PRIMARY KEY AUTOINCREMENT , email TEXT,name TEXT, address TEXT , gender INTEGER , phone TEXT , today INTEGER , tomorrow INTEGER , nextDay INTEGER )',
-        [],
-        (tx, result) => {
-          console.log('tx', tx);
-          console.log('result', result);
-        },
-      );
-    });
+    
   }, []);
   const toggleSwitch = () => {
     if (isEnabled == 0) {

@@ -46,31 +46,8 @@ const First = ({navigation}) => {
       setList(filteredList);
     }
   };
-  function createUsersTable() {
-    console.log('createUsersTable');
-    db.transaction(tx => {
-      tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT , email TEXT, name TEXT , phone TEXT ,password TEXT )',
-        [],
-        (tx, result) => {
-          console.log('tx', tx);
-          console.log('result', result);
-        },
-      );
-    });
-  }
-  function createTimeTable() {
-    db.transaction(tx => {
-      tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS dateTime (id INTEGER PRIMARY KEY AUTOINCREMENT , date TEXT)',
-        [],
-        (tx, result) => {
-          console.log('tx', tx);
-          console.log('result', result);
-        },
-      );
-    });
-  }
+
+ 
 
   const renderBarberCard = ({item}) => {
     return (
@@ -85,8 +62,6 @@ const First = ({navigation}) => {
 
   useEffect(() => {
     wholeBarbers();
-    createUsersTable();
-    createTimeTable();
     setList(allBarbers);
   }, []);
 
