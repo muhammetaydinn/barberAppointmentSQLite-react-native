@@ -16,6 +16,7 @@ const RandevularCard = ({item, navigation}) => {
 
   const [barberName, setBarberName] = useState('');
   const [barberPhone, setBarberPhone] = useState('');
+  const [barberAddress, setBarberAddress] = useState('');
 
   const getBarberName = () => {
     db.transaction(tx => {
@@ -27,6 +28,7 @@ const RandevularCard = ({item, navigation}) => {
           if (len > 0) {
             setBarberName(results.rows.item(0).name);
             setBarberPhone(results.rows.item(0).phone);
+            setBarberAddress(results.rows.item(0).address);
           } else {
             alert('randevunuz bulunmamaktadır');
           }
@@ -134,7 +136,7 @@ const RandevularCard = ({item, navigation}) => {
         {
           <View>
             <Text style={styles.barber_label}>{barberName}</Text>
-            <Text style={styles.barber_address}>{item.address} </Text>
+            <Text style={styles.barber_address}>{barberAddress} </Text>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text style={styles.barber_address}>{barberPhone}</Text>

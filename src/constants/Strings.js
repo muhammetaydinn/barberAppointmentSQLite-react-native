@@ -16,4 +16,9 @@ export const Strings = {
   add: '     EKLE     ',
   user_add_panel: 'Kullanıcı Ekleme Paneli',
   add_user: 'Kullanıcı Ekle',
+  edit_profile: 'Profili Düzenle',
+  enter_password: 'Şifrenizi Girin',
+  enter_password_again: 'Şifrenizi Tekrar Girin',
+  update: 'Güncelle',
+  enter_name: 'İsminizi Girin',
 };

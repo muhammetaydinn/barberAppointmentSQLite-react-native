@@ -82,4 +82,18 @@ export default StyleSheet.create({
   view7: {flexDirection: 'row', flex: 1, borderRadius: 5},
   view8: {flex: 2},
   view9: {flex: 1, justifyContent: 'center'},
+  button_view: {
+    width: w * 0.7,
+    alignSelf: 'center',
+    height: h * 0.05,
+    backgroundColor: 'gray',
+    borderRadius: 10,
+    justifyContent: 'center',
+  },
+  button_text: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+  },
 });

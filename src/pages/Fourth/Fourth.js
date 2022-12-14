@@ -94,7 +94,18 @@ export default function Fourth({ navigation }) {
         <InfoCard
           text={Strings.password_hidden}
           imageUri={Images.passwordImage}></InfoCard>
-        <View style={styles.view3} />
+        <View>
+          <TouchableOpacity
+            color={'gray'}
+            disabled={barberData.name == null}
+            title={'Profili Düzenle'}
+            onPress={() => {
+              navigation.navigate('EditBarberProfile');
+            }}
+            style={styles.button_view}>
+            <Text style={styles.button_text}>{Strings.edit_profile}</Text>
+          </TouchableOpacity>
+        </View>
         <View style={styles.view4}>
           <Text style={styles.text2}>{Strings.my_appointments}</Text>
         </View>

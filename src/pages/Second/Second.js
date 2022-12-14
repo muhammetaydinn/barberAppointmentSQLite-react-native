@@ -73,7 +73,19 @@ const Second = ({navigation}) => {
       <InfoCard
         text={userData.password}
         imageUri={Images.passwordImage}></InfoCard>
-      <View style={styles.seperator} />
+      <View style={styles.space3} />
+      <View>
+        <TouchableOpacity
+          color={'gray'}
+          disabled={userData.name == null}
+          title={'Profili Düzenle'}
+          onPress={() => {
+            navigation.navigate('EditProfile');
+          }}
+          style={styles.button_view}>
+          <Text style={styles.button_text}>{Strings.edit_profile}</Text>
+        </TouchableOpacity>
+      </View>
       <View style={{marginTop: 15}}>
         <Text style={styles.header_text}>{Strings.my_appointments}</Text>
       </View>

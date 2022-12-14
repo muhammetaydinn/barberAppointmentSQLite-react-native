@@ -24,4 +24,18 @@ export default StyleSheet.create({
     borderColor: 'black',
     marginHorizontal: w * 0.05,
   },
+  button_view: {
+    width: w * 0.7,
+    alignSelf: 'center',
+    height: h * 0.05,
+    backgroundColor: 'gray',
+    borderRadius: 10,
+    justifyContent: 'center',
+  },
+  button_text: {
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+  },
 });

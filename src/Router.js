@@ -9,7 +9,8 @@ import Second from './pages/Second/Second';
 import Third from './pages/Third/Third';
 import Fourth from './pages/Fourth/Fourth';
 import Fifth from './pages/Fifth/Fifth';
-
+import EditProfile from './pages/EditProfile/EditProfile';
+import EditBarberProfile from './pages/EditBarberProfile/EditBarberProfile';
 import {SiteContext} from './context/SiteContext';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -41,6 +42,11 @@ const CustomerStack = () => {
         options={{headerTitle: '', headerTransparent: true}}
       />
       <Stack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={{headerTitle: '', headerTransparent: true}}
+      />
+      <Stack.Screen
         name="Third"
         component={Third}
         options={{headerTitle: '', headerTransparent: true}}
@@ -48,6 +54,23 @@ const CustomerStack = () => {
     </Stack.Navigator>
   );
 };
+const BarberStack = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Fourth"
+        component={Fourth}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="EditBarberProfile"
+        component={EditBarberProfile}
+        options={{headerTitle: '', headerTransparent: true}}
+      />
+    </Stack.Navigator>
+  );
+};
+
 function Router() {
   const [allBarbers, setAllBarbers] = useState({});
   const [db, setDb] = useState(db1);
@@ -370,7 +393,7 @@ function Router() {
           />
           <Tab.Screen
             name="Barber"
-            component={Fourth}
+            component={BarberStack}
             options={{headerShown: false}}
           />
           <Tab.Screen

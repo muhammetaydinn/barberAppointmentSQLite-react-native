@@ -1,11 +1,11 @@
 ## UYGULAMADAKI SORUNLAR
-- Clean code yazılmadı. 
-- Redux kullanılmadı.
+- berber ve müşteri profil güncelleme ekranlarında state management eksik query kullanılmalı ama localstorage kullanıldı 
+
 
 ## UYGULAMAYA EKLENEBİLİR ÖZELLİKLER
 - Müşteri geçmiş randevulardan iptal butonu kaldır ve gri renkte yap.Eğer istenirse farklı bir sayfada gösterilebilir.
 - berber randevu geçmişi gösterilmesin. Eğer istenirse farklı bir sayfada gösterilebilir.
-- tek günlük randevu sisteminden çıkıp saatlik sisteme geçilebilir.
+- tek günlük randevu sisteminden çıkıp saatlik sisteme geçilebilir.BerberRandevular getUserName fonksiyonu
 
 
 
